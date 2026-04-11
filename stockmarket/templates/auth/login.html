@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  {% load static %}
+  <title>StockVision  — Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #050810;
+      --surface:   rgba(255,255,255,0.035);
+      --border:    rgba(255,255,255,0.08);
+      --accent:    #00d4ff;
+      --accent2:   #7c3aed;
+      --green:     #00e676;
+      --red:       #ff4757;
+      --text:      #e8eaf0;
+      --muted:     rgba(232,234,240,0.45);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Animated background ──────────────────────────────────── */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      background: radial-gradient(ellipse 120% 80% at 20% 40%, rgba(0,212,255,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse 80% 60% at 80% 80%, rgba(124,58,237,0.1) 0%, transparent 55%),
+                  radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,230,118,0.05) 0%, transparent 50%);
+    }
+
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+    }
+
+    /* Floating orbs */
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(80px);
+      animation: drift 12s ease-in-out infinite alternate;
+      pointer-events: none; z-index: 0;
+    }
+    .orb-1 { width: 400px; height: 400px; background: rgba(0,212,255,0.07); top: -100px; left: -100px; }
+    .orb-2 { width: 350px; height: 350px; background: rgba(124,58,237,0.09); bottom: -80px; right: -80px; animation-delay: -6s; }
+    .orb-3 { width: 200px; height: 200px; background: rgba(0,230,118,0.06); top: 50%; left: 60%; animation-delay: -3s; }
+
+    @keyframes drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(30px, 20px) scale(1.08); }
+    }
+
+    /* ── Ticker tape ──────────────────────────────────────────── */
+    .ticker-wrap {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 2;
+      background: rgba(0,212,255,0.05);
+      border-bottom: 1px solid rgba(0,212,255,0.1);
+      overflow: hidden; height: 28px;
+    }
+    .ticker-inner {
+      display: flex; gap: 48px; white-space: nowrap;
+      animation: ticker 30s linear infinite;
+      padding: 5px 0;
+    }
+    .ticker-item {
+      font-family: 'Syne', sans-serif; font-size: 11px; letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    .ticker-item .up   { color: var(--green); }
+    .ticker-item .down { color: var(--red); }
+
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── Card ─────────────────────────────────────────────────── */
+    .card-wrap {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 440px;
+      padding: 16px;
+    }
+
+    .card {
+      background: rgba(10, 14, 26, 0.75);
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 44px 40px;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03),
+                  0 24px 64px rgba(0,0,0,0.6),
+                  inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 36px;
+    }
+    .logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 20px rgba(0,212,255,0.3);
+    }
+    .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; }
+    .logo-text span { color: var(--accent); }
+
+    h1 {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 26px; line-height: 1.2; margin-bottom: 6px;
+    }
+    .subtitle { color: var(--muted); font-size: 13.5px; margin-bottom: 32px; }
+
+    /* ── Form ─────────────────────────────────────────────────── */
+    .form-group { margin-bottom: 18px; }
+
+    label {
+      display: block; font-size: 12px; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 7px;
+    }
+
+    .input-wrap { position: relative; }
+    .input-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 15px; pointer-events: none;
+    }
+
+    input {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      padding: 12px 14px 12px 40px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+    input:focus {
+      border-color: rgba(0,212,255,0.4);
+      background: rgba(0,212,255,0.04);
+      box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+    }
+    input::placeholder { color: rgba(232,234,240,0.25); }
+
+    .btn {
+      width: 100%; padding: 13px;
+      border: none; border-radius: 10px; cursor: pointer;
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      color: #fff;
+      transition: all 0.2s;
+      position: relative; overflow: hidden;
+      margin-top: 8px;
+    }
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(255,255,255,0);
+      transition: background 0.2s;
+    }
+    .btn:hover::after { background: rgba(255,255,255,0.08); }
+    .btn:active { transform: scale(0.98); }
+    .btn.loading { pointer-events: none; opacity: 0.7; }
+
+    .btn-inner { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .spinner {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn.loading .spinner { display: block; }
+    .btn.loading .btn-label { opacity: 0.7; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-box {
+      background: rgba(255,71,87,0.1);
+      border: 1px solid rgba(255,71,87,0.25);
+      border-radius: 8px; padding: 10px 12px;
+      font-size: 13px; color: var(--red);
+      margin-bottom: 16px; display: none;
+    }
+    .error-box.show { display: flex; align-items: center; gap: 8px; }
+
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 24px 0; color: var(--muted); font-size: 12px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: var(--border);
+    }
+
+    .link-row {
+      text-align: center; font-size: 13.5px; color: var(--muted);
+      margin-top: 20px;
+    }
+    .link-row a {
+      color: var(--accent); text-decoration: none; font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .link-row a:hover { opacity: 0.75; }
+
+    /* ── Stat badges ──────────────────────────────────────────── */
+    .stats-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px; margin-top: 28px;
+    }
+    .stat-badge {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: 'Syne', sans-serif; font-weight: 700;
+      font-size: 16px; color: var(--accent);
+    }
+    .stat-lbl { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas"></div>
+<div class="grid-overlay"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Ticker tape -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker"></div>
+</div>
+
+<!-- Login card -->
+<div class="card-wrap">
+  <div class="card">
+    <div class="logo">
+      <div class="logo-icon">📈</div>
+      <div class="logo-text">Stock<span>Vision</span></div>
+    </div>
+
+    <h1>Welcome back</h1>
+    <p class="subtitle">Sign in to access StockVision predictions</p>
+
+    <div class="error-box" id="errorBox">
+      <span>⚠</span>
+      <span id="errorMsg">Invalid credentials.</span>
+    </div>
+
+    <form id="loginForm" autocomplete="off">
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="username" name="username" placeholder="Enter your username" required />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="password" name="password" placeholder="Enter your password" required />
+        </div>
+      </div>
+
+      <button type="submit" class="btn" id="loginBtn">
+        <div class="btn-inner">
+          <div class="spinner"></div>
+          <span class="btn-label">Sign In →</span>
+        </div>
+      </button>
+    </form>
+
+    <div class="divider">or</div>
+
+    <div class="link-row">
+      Don't have an account? <a href="/register/">Create one →</a>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-badge">
+        <div class="stat-val">3</div>
+        <div class="stat-lbl">ML Models</div>
+      </div>
+      <div class="stat-badge">
+        <div class="stat-val">7+</div>
+        <div class="stat-lbl">Day Forecast</div>
+      </div>
+      <div class="stat-badge">
+        <div class="stat-val">Live</div>
+        <div class="stat-lbl">Market Data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── Ticker tape data ────────────────────────────────────────────────────────
+  const tickers = [
+    {s:'AAPL',p:'$189.34',c:'+1.24%',up:true},
+    {s:'GOOGL',p:'$141.56',c:'-0.38%',up:false},
+    {s:'MSFT',p:'$378.91',c:'+0.87%',up:true},
+    {s:'TSLA',p:'$245.12',c:'+3.12%',up:true},
+    {s:'NVDA',p:'$495.22',c:'+2.45%',up:true},
+    {s:'AMZN',p:'$178.55',c:'-0.55%',up:false},
+    {s:'META',p:'$353.40',c:'+1.18%',up:true},
+    {s:'NFLX',p:'$608.25',c:'+0.74%',up:true},
+  ];
+  const t = document.getElementById('ticker');
+  const html = [...tickers,...tickers].map(x=>
+    `<span class="ticker-item">${x.s} ${x.p} <span class="${x.up?'up':'down'}">${x.c}</span></span>`
+  ).join('');
+  t.innerHTML = html;
+
+  // ── Login form ──────────────────────────────────────────────────────────────
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('loginBtn');
+    const errBox = document.getElementById('errorBox');
+    errBox.classList.remove('show');
+    btn.classList.add('loading');
+
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+
+    try {
+      const resp = await fetch('/api/login/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({username, password}),
+      });
+      const data = await resp.json();
+
+      if (resp.ok && data.success) {
+        localStorage.setItem('access_token',  data.data.access);
+        localStorage.setItem('refresh_token', data.data.refresh);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        window.location.href = '/dashboard/';
+      } else {
+        const msg = data.error?.message || 'Login failed. Please try again.';
+        document.getElementById('errorMsg').textContent = msg;
+        errBox.classList.add('show');
+      }
+    } catch (err) {
+      document.getElementById('errorMsg').textContent = 'Network error. Please try again.';
+      errBox.classList.add('show');
+    } finally {
+      btn.classList.remove('loading');
+    }
+  });
+
+  // Redirect if already logged in
+  if (localStorage.getItem('access_token')) {
+    window.location.href = '/dashboard/';
+  }
+</script>
+</body>
+</html>
