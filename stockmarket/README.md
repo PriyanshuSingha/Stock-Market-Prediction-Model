@@ -1,6 +1,6 @@
-# 📈 StockSense AI — Stock Market Prediction by Machine Learning
+# 📈 StockVision — Stock Market Prediction by Machine Learning
 
-> **B.Tech AIML Final Year Project** | Web-based stock prediction system powered by Linear Regression, Random Forest, and LSTM neural networks.
+> **B.Tech AIML 2nd Year Project** | Web-based stock prediction system powered by Linear Regression, Random Forest, and LSTM neural networks.
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square)
 ![Django](https://img.shields.io/badge/Django-4.2-green?style=flat-square)
